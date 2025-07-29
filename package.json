@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "dev": "dotenv -e .env.local -- ts-node-dev --respawn --transpile-only src/server.ts",
+    "dev": "dotenv -e .env.local -- ts-node-dev --respawn --transpile-only src/entry.ts",
     "build": "tsc",
     "seed:service:local": "dotenv -e .env.local -- ts-node src/seeds/service.ts",
     "seed:service:test": "dotenv -e .env.test -- ts-node src/seeds/service.ts",
