@@ -5,9 +5,9 @@
     "seed:service:local": "dotenv -e .env.local -- ts-node src/seeds/service.ts",
     "seed:service:test": "dotenv -e .env.test -- ts-node src/seeds/service.ts",
     "test": "dotenv -e .env.test -- npm run db:down:test && npm run db:up:test && npm run db:wait:test && npm run seed:service:test && jest --runInBand",
-    "db:up:test": "docker run --rm --name test-postgres-db -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=brigthe -p 5435:5432 -d postgres",
-    "db:down:test": "docker rm -f test-postgres-db",
-    "db:wait:test": "echo \"Waiting for PostgreSQL to be ready...\" && until docker exec test-postgres-db pg_isready -U testuser -h 0.0.0.0 -p 5432; do echo \"PostgreSQL not ready yet. Retrying in 2s...\"; sleep 2; done && echo \"PostgreSQL is ready!\""
+    "db:up:test": "docker run --rm --name test-postgres-db-1 -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=brigthe -p 5436:5432 -d postgres",
+    "db:down:test": "docker rm -f test-postgres-db-1",
+    "db:wait:test": "echo \"Waiting for PostgreSQL to be ready...\" && until docker exec test-postgres-db-1 pg_isready -U postgres -h 0.0.0.0 -p 5432; do echo \"PostgreSQL not ready yet. Retrying in 2s...\"; sleep 2; done && echo \"PostgreSQL is ready!\""
   },
   "dependencies": {
     "@apollo/server": "^5.0.0",
@@ -25,6 +25,7 @@
     "@types/express": "^5.0.3",
     "@types/jest": "^30.0.0",
     "@types/node": "^24.1.0",
+    "@types/supertest": "^6.0.3",
     "dotenv-cli": "^9.0.0",
     "jest": "^29.7.0",
     "supertest": "^7.1.4",

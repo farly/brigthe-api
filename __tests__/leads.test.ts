@@ -6,8 +6,9 @@ import { AppDataSource } from '../src/dataSource';
 import { Service } from '../src/entities/Service';
 import { createApolloServer } from '../src/server';
 import { Lead } from '../src/entities/Lead';
+import TestAgent from 'supertest/lib/agent';
 
-let request;
+let request: TestAgent;
 
 beforeAll(async () => {
   const { app } = await createApolloServer();
