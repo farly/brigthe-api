@@ -1,7 +1,6 @@
 import {
   Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, ManyToMany, JoinTable
 } from 'typeorm';
-
 import { Service } from './Service';
 
 @Entity()
