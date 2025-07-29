@@ -1,4 +1,10 @@
 {
+  "scripts": {
+    "dev": "dotenv -e .env.local -- ts-node-dev --respawn --transpile-only src/server.ts",
+    "test": "jest --config jest.config.ts",
+    "build": "tsc",
+    "seed:service:local": "dotenv -e .env.local -- ts-node src/seeds/service.ts"
+  },
   "dependencies": {
     "apollo-server-express": "^3.13.0",
     "class-validator": "^0.14.2",
@@ -13,6 +19,7 @@
     "@types/express": "^5.0.3",
     "@types/jest": "^30.0.0",
     "@types/node": "^24.1.0",
+    "dotenv-cli": "^9.0.0",
     "jest": "^29.7.0",
     "supertest": "^7.1.4",
     "ts-jest": "^29.4.0",

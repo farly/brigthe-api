@@ -24,6 +24,16 @@ export class Lead {
   createdAt: Date;
 
   @ManyToMany(() => Service, { eager: true })
-  @JoinTable()
+  @JoinTable({
+    name: 'lead_services',
+    joinColumn: {
+      name: 'lead_id',
+      referencedColumnName: 'id',
+    },
+    inverseJoinColumn: {
+      name: 'service_id',
+      referencedColumnName: 'id',
+    },
+  })
   services: Service[];
 }
