@@ -1,38 +1,58 @@
-import { createApp } from './app';
+import 'reflect-metadata';
+import http from 'http';
+import { ApolloServer } from '@apollo/server';
+import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
+import app from './app'; // your express app
+import { expressMiddleware } from '@as-integrations/express5';
+import { buildSchema } from 'type-graphql';
+import { LeadResolver } from './resolvers/LeadResolver';
 import { AppDataSource } from './dataSource';
-import { Service } from './entities/Service';
 
-async function run() {
+async function startServer() {
   await AppDataSource.initialize();
 
-  // Seed services if not present
-  const serviceRepo = AppDataSource.getRepository(Service);
-  const baseServices = ['delivery', 'pick-up', 'payment'];
-  for (const name of baseServices) {
-    const exists = await serviceRepo.findOneBy({ name });
-    if (!exists) {
-      await serviceRepo.save(serviceRepo.create({ name }));
-    }
-  }
+  const httpServer = http.createServer(app);
 
-  const app = await createApp();
+  const schema = await buildSchema({
+    resolvers: [LeadResolver],
+    validate: false, 
+  });
 
-  const PORT = process.env.PORT || 4000;
-  const server = app.listen(PORT, () =>
-    console.log(`🚀 Server ready at http://localhost:${PORT}/graphql`)
+  const server = new ApolloServer({
+    schema,
+    plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
+  });
+
+  await server.start();
+
+  app.use(
+    '/graphql',
+    expressMiddleware(server),
   );
 
-  process.on('SIGINT', () => {
-    server.close(() => {
-      console.log('Server closed');
-      AppDataSource.destroy().then(() => {
-        console.log('Data Source closed');
-        process.exit(0);
-      });
-    });
+  const PORT = process.env.PORT || 4000;
+  await httpServer.listen(PORT, () => {
+    console.log(`🚀 Server ready at http://localhost:${PORT}/graphql`);
+  });
+
+  const shutdown = async () => {
+    console.log('Shutting down server...');
+    await server.stop();
+    await httpServer.close();
+    console.log('Server shut down gracefully');
+  }
+
+  process.on('SIGINT', async () => {
+    await shutdown();
+    process.exit(0);
+  });
+
+  process.on('SIGTERM', async () => {
+    await shutdown();
+    process.exit(0);
   });
 }
 
-run().catch(error => {
-  console.error('Error during Data Source initialization:', error);
-})
+startServer().catch((err) => {
+  console.error('Server failed to start', err);
+});

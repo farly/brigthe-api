@@ -6,7 +6,6 @@ import {
   Int,
   InputType,
   Field,
-  ObjectType,
 } from 'type-graphql';
 import { Lead } from '../entities/Lead';
 import { Service } from '../entities/Service';
