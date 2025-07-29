@@ -1,9 +1,13 @@
 {
   "scripts": {
     "dev": "dotenv -e .env.local -- ts-node-dev --respawn --transpile-only src/server.ts",
-    "test": "jest --config jest.config.ts",
     "build": "tsc",
-    "seed:service:local": "dotenv -e .env.local -- ts-node src/seeds/service.ts"
+    "seed:service:local": "dotenv -e .env.local -- ts-node src/seeds/service.ts",
+    "seed:service:test": "dotenv -e .env.test -- ts-node src/seeds/service.ts",
+    "test": "dotenv -e .env.test -- npm run db:down:test && npm run db:up:test && npm run db:wait:test && npm run seed:service:test && jest --runInBand",
+    "db:up:test": "docker run --rm --name test-postgres-db -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=brigthe -p 5435:5432 -d postgres",
+    "db:down:test": "docker rm -f test-postgres-db",
+    "db:wait:test": "echo \"Waiting for PostgreSQL to be ready...\" && until docker exec test-postgres-db pg_isready -U testuser -h 0.0.0.0 -p 5432; do echo \"PostgreSQL not ready yet. Retrying in 2s...\"; sleep 2; done && echo \"PostgreSQL is ready!\""
   },
   "dependencies": {
     "apollo-server-express": "^3.13.0",
