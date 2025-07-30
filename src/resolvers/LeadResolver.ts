@@ -22,6 +22,7 @@ import { In } from 'typeorm';
 import { LeadDTO } from '../dto/Lead';
 import { toLeadDTO } from '../dto/mappers/lead';
 import { register } from '../useCase/register';
+import { fetchLeads } from '../useCase/lead';
 
 @InputType()
 export class RegisterInput {
@@ -57,8 +58,9 @@ export class LeadResolver {
 
   @Query(() => [LeadDTO])
   async leads(): Promise<LeadDTO[]> {
-    const leads = await this.leadRepo.find();
-    return leads.map(lead => toLeadDTO(lead));
+    return fetchLeads({
+      leadRepo: this.leadRepo,
+    })
   }
 
   @Query(() => LeadDTO, { nullable: true })
