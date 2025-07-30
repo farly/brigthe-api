@@ -1,14 +1,17 @@
 
 
-// can i run the server?
+
 import Request from 'supertest';
 import { AppDataSource } from '../src/dataSource';
-import { Service } from '../src/entities/Service';
 import { createApolloServer } from '../src/server';
 import { Lead } from '../src/entities/Lead';
 import TestAgent from 'supertest/lib/agent';
 
 let request: TestAgent;
+
+type ValidationError = {
+  property: string;
+}
 
 beforeAll(async () => {
   const { app } = await createApolloServer();
@@ -57,6 +60,49 @@ describe('LeadResolver', () => {
       expect(response.body.data.register.services[0]).toHaveProperty('id', 1);
       expect(response.body.data.register.services[0]).toHaveProperty('name', "delivery");
     });
+
+    describe("Validation", () => {
+      it('should return an error for missing required fields', async () => {
+        const response = await request
+          .post('/graphql')
+          .send({
+            query: `
+              mutation Register($input: RegisterInput!) {
+                register(input: $input) {
+                  id
+                  name
+                  email
+                  mobile
+                  postcode
+                  services {
+                    id
+                    name
+                  }
+                }
+              }
+            `,
+            variables: {
+              input: {
+                name: '', 
+                email: '', 
+                mobile: '', 
+                postcode: '', 
+                services: [], 
+              },
+            },
+          });
+
+        const body = response.body;
+        
+        const validationErrors = body.errors[0].extensions.validationErrors
+
+        expect(response.status).toBe(200);
+        expect(body.errors).toBeDefined();
+        validationErrors.forEach((error: ValidationError) => {
+          expect(['name', 'email', 'mobile', 'postcode', 'services'].includes(error.property)).toBe(true);
+        })
+      });
+    })
   })
 
   describe("Fetch Leads", () => {

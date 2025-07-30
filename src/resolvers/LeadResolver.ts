@@ -7,6 +7,14 @@ import {
   InputType,
   Field,
 } from 'type-graphql';
+
+import {
+  IsEmail,
+  IsNotEmpty,
+  ArrayNotEmpty,
+  IsString,
+} from 'class-validator';
+
 import { Lead } from '../entities/Lead';
 import { Service } from '../entities/Service';
 import { AppDataSource } from '../dataSource';
@@ -15,12 +23,29 @@ import { LeadDTO } from '../dto/Lead';
 import { toLeadDTO } from '../dto/mappers/lead';
 
 @InputType()
-class RegisterInput {
-  @Field() name: string;
-  @Field() email: string;
-  @Field() mobile: string;
-  @Field() postcode: string;
-  @Field(() => [String]) services: string[];
+export class RegisterInput {
+  @Field()
+  @IsNotEmpty({ message: 'Name should not be empty' })
+  @IsString()
+  name: string;
+
+  @Field()
+  @IsEmail({}, { message: 'Email must be a valid email address' })
+  email: string;
+
+  @Field()
+  @IsNotEmpty({ message: 'Mobile should not be empty' })
+  @IsString()
+  mobile: string;
+
+  @Field()
+  @IsNotEmpty({ message: 'Postcode should not be empty' })
+  @IsString()
+  postcode: string;
+
+  @Field(() => [String])
+  @ArrayNotEmpty({ message: 'At least one service must be selected' })
+  services: string[];
 }
 
 @Resolver()

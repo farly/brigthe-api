@@ -11,7 +11,7 @@ export async function createApolloServer() {
 
   const schema = await buildSchema({
     resolvers: [LeadResolver],
-    validate: false,
+    validate: true,
   });
 
   const server = new ApolloServer({ schema });
