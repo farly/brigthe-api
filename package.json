@@ -4,7 +4,7 @@
     "build": "tsc",
     "seed:service:local": "dotenv -e .env.local -- ts-node src/seeds/service.ts",
     "seed:service:test": "dotenv -e .env.test -- ts-node src/seeds/service.ts",
-    "test": "dotenv -e .env.test -- npm run db:down:test && npm run db:up:test && npm run db:wait:test && npm run seed:service:test && jest --runInBand",
+    "test": "dotenv -e .env.test -- sh -c \"npm run db:down:test && npm run db:up:test && npm run db:wait:test && npm run seed:service:test && jest --runInBand\"",
     "db:up:test": "docker run --rm --name test-postgres-db-1 -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=brigthe -p 5436:5432 -d postgres",
     "db:down:test": "docker rm -f test-postgres-db-1",
     "db:wait:test": "echo \"Waiting for PostgreSQL to be ready...\" && until docker exec test-postgres-db-1 pg_isready -U postgres -h 0.0.0.0 -p 5432; do echo \"PostgreSQL not ready yet. Retrying in 2s...\"; sleep 2; done && echo \"PostgreSQL is ready!\""
