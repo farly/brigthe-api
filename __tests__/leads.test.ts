@@ -6,16 +6,24 @@ import { AppDataSource } from '../src/dataSource';
 import { createApolloServer } from '../src/server';
 import { Lead } from '../src/entities/Lead';
 import TestAgent from 'supertest/lib/agent';
+import { ApolloServer } from '@apollo/server';
 
 let request: TestAgent;
+let server: ApolloServer;
 
 type ValidationError = {
   property: string;
 }
 
 beforeAll(async () => {
-  const { app } = await createApolloServer();
+  const { app, server: apolloServer } = await createApolloServer();
   request = Request(app);
+  server = apolloServer;
+});
+
+afterAll(async () => {
+  server.stop();
+  await AppDataSource.destroy();
 });
 
 describe('LeadResolver', () => {

@@ -21,6 +21,7 @@ import { AppDataSource } from '../dataSource';
 import { In } from 'typeorm';
 import { LeadDTO } from '../dto/Lead';
 import { toLeadDTO } from '../dto/mappers/lead';
+import { register } from '../useCase/register';
 
 @InputType()
 export class RegisterInput {
@@ -50,13 +51,13 @@ export class RegisterInput {
 
 @Resolver()
 export class LeadResolver {
+
   private leadRepo = AppDataSource.getRepository(Lead);
   private serviceRepo = AppDataSource.getRepository(Service);
 
   @Query(() => [LeadDTO])
   async leads(): Promise<LeadDTO[]> {
     const leads = await this.leadRepo.find();
-
     return leads.map(lead => toLeadDTO(lead));
   }
 
@@ -68,19 +69,9 @@ export class LeadResolver {
 
   @Mutation(() => LeadDTO)
   async register(@Arg('input') input: RegisterInput): Promise<LeadDTO> {
-    const services = await this.serviceRepo.find({
-      where: { name: In(input.services) },
-    });
-
-    const lead = this.leadRepo.create({
-      name: input.name,
-      email: input.email,
-      mobile: input.mobile,
-      postcode: input.postcode,
-      services,
-    });
-
-    const createdLead = await this.leadRepo.save(lead);
-    return toLeadDTO(createdLead);
+    return register(input, {
+      serviceRepo: this.serviceRepo,
+      leadRepo: this.leadRepo,
+    });  
   }
 }
